@@ -62,7 +62,6 @@ class SimpleNavigator(Node):
         # Now runs on a timer
         self.navigate_to_waypoint()
 
-
     def navigate_to_waypoint(self):
 
         # Check for target waypoint
@@ -87,10 +86,10 @@ class SimpleNavigator(Node):
         if distance > 0.1: # Not at waypoint yet
 
             # Rotate to face waypoint
-            desired_angular = 1.5 * yaw_error
+            desired_angular = 1.5 * yaw_error   # Proportional yaw controller (no ceiling)
 
             # Move forward once roughly facing target
-            if abs(yaw_error) < (np.pi/30):
+            if abs(yaw_error) < (30 * (np.pi/180)):
                 desired_linear = min(0.7, 0.7 * distance)  # Proportional speed with a ceiling
             else:
                 desired_linear = 0.0  # Stop and turn first
@@ -99,7 +98,7 @@ class SimpleNavigator(Node):
             desired_linear = 0.0
             desired_angular = 0.0
             if not self.reached_target:
-                self.get_logger().info(f"Reached waypoint - distance = {distance}")
+                self.get_logger().info(f"Waypoint ({self.target_x:.2f}, {self.target_y:.2f}) reached")
             self.reached_target = True
 
         # Apply desired commands and publish
