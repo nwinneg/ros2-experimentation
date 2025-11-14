@@ -1,0 +1,16 @@
+version: '3.8'
+
+services:
+  ros2_dev:
+    build: .
+    container_name: ros2_dev
+    stdin_open: true
+    tty: true
+    network_mode: host
+    environment:
+      - DISPLAY=${DISPLAY}
+    volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
+      - ./ros2_ws:/root/ros2_ws:rw
+    working_dir: /root/ros2_ws
+    command: bash

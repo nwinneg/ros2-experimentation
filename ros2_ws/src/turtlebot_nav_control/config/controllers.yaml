@@ -1,0 +1,54 @@
+controller_manager:
+  ros__parameters:
+    update_rate: 30 # Hz, should match or be lower than the Gazebo update rate
+
+    # The controller that publishes joint states to ROS 2. 
+    # It reads state from the ros2_control hardware interface.
+    joint_state_broadcaster:
+      type: joint_state_broadcaster/JointStateBroadcaster
+
+    # The controller that handles differential drive movement.
+    # It takes /cmd_vel and sends commands to the wheel joints.
+    diff_drive_controller:
+      type: diff_drive_controller/DiffDriveController
+
+diff_drive_controller:
+  ros__parameters:
+    # 1. Kinematics/Geometry
+    # These parameters must match the values used in the XACRO diff_drive plugin!
+    wheel_separation: 0.160 
+    wheel_radius: 0.033
+    
+    # 2. Wheel Joints
+    # These must match the joint names defined in your XACRO's <ros2_control> block.
+    left_wheel_names: ['wheel_left_joint']
+    right_wheel_names: ['wheel_right_joint']
+
+    # 3. Control Configuration
+    # Command interface type must match the <command_interface> in your XACRO.
+    publish_rate: 30.0
+    velocity_rolling_window_size: 10
+    
+    # Odometry is handled by the Gazebo plugin, but we still define the publishing
+    # topics and frame IDs for the controller to use/override if necessary.
+    set_frame_id: true
+    odom_frame_id: odom
+    base_frame_id: base_footprint
+
+    # PID control for velocity (adjust these if simulation is unstable)
+    linear:
+      x:
+        has_velocity_limits: true
+        max_velocity: 0.22 # m/s
+        has_acceleration_limits: true
+        max_acceleration: 1.0 # m/s^2
+    angular:
+      z:
+        has_velocity_limits: true
+        max_velocity: 2.84 # rad/s
+        has_acceleration_limits: true
+        max_acceleration: 3.0 # rad/s^2
+
+    # Command input topic 
+    cmd_vel_timeout: 0.5
+    allow_integration_in_position_joint_mode: true
