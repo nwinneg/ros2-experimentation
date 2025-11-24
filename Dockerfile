@@ -44,6 +44,13 @@ RUN apt update && apt install -y \
     ros-humble-gazebo-ros2-control \
     && rm -rf /var/lib/apt/lists/*
 
+# Install ROS2 Navigation (Nav2) packages
+RUN apt update && apt install -y \
+    ros-humble-navigation2 \
+    ros-humble-nav2-bringup \
+    ros-humble-slam-toolbox \
+    && rm -rf /var/lib/apt/lists/*
+
 # Common dev tools & visualization dependencies
 RUN apt update && apt install -y \
     python3-colcon-common-extensions \
