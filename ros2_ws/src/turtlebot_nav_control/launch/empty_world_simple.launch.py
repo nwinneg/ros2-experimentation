@@ -67,41 +67,6 @@ def generate_launch_description():
         output='screen'
     )
 
-    # # Relay odom topic from diff_drive_controller to /odom
-    # odom_relay = Node(
-    #     package='topic_tools',
-    #     executable='relay',
-    #     name='odom_relay',
-    #     arguments=['/diff_drive_controller/odom', '/odom'],
-    #     parameters=[{'use_sim_time': True}],
-    #     output='screen'
-    # )
-
-    # # Include SLAM Toolbox launch file
-    # slam_launch = IncludeLaunchDescription(
-    #     PythonLaunchDescriptionSource(
-    #         os.path.join(pkg_slam_toolbox, 'launch', 'online_async_launch.py')
-    #     ),
-    #     launch_arguments={
-    #         'use_sim_time': 'true',
-    #         'slam_params_file': slam_params_file
-    #     }.items()
-    # )
-
-    # slam_node = Node(
-    # package='slam_toolbox',
-    # executable='async_slam_toolbox_node',
-    # name='slam_toolbox',
-    # output='screen',
-    # parameters=[
-    #     slam_params_file,
-    #     {'use_sim_time': True}
-    #     ],
-    # remappings=[
-    #     ('/odom', '/diff_drive_controller/odom')
-    #     ]
-    # )
-
     # RViz2
     rviz_config_file = os.path.join(pkg_tb3_nav_ctrl, 'rviz', 'turtlebot_nav_control.rviz')
     rviz_node = Node(
@@ -121,25 +86,13 @@ def generate_launch_description():
         parameters=[{'use_sim_time': True}]
     )
 
-    # # Handler: Waits for the spawn_robot process to finish before starting SLAM
-    # load_slam_after_robot = RegisterEventHandler(
-    #     OnProcessExit(
-    #         target_action=spawn_robot, 
-    #         on_exit=[slam_node, simple_navigator], # <--- Launch SLAM and Navigator here
-    #     )
-    # )
-
     return LaunchDescription([
         gazebo,
         robot_state_publisher,
-        # controller_manager_params,
         spawn_robot,
         spawn_joint_state_broadcaster,
         spawn_diff_drive_controller,
-        # slam_launch,
-        # rviz_node,
         simple_navigator,
         rviz_node,
-        # load_slam_after_robot
     ])
 

@@ -71,27 +71,7 @@ def generate_launch_description():
         output='screen'
     )
 
-    # # Relay odom topic from diff_drive_controller to /odom
-    # odom_relay = Node(
-    #     package='topic_tools',
-    #     executable='relay',
-    #     name='odom_relay',
-    #     arguments=['/diff_drive_controller/odom', '/odom'],
-    #     parameters=[{'use_sim_time': True}],
-    #     output='screen'
-    # )
-
-    # # Include SLAM Toolbox launch file
-    # slam_launch = IncludeLaunchDescription(
-    #     PythonLaunchDescriptionSource(
-    #         os.path.join(pkg_slam_toolbox, 'launch', 'online_async_launch.py')
-    #     ),
-    #     launch_arguments={
-    #         'use_sim_time': 'true',
-    #         'slam_params_file': slam_params_file
-    #     }.items()
-    # )
-
+    # SLAM Toolbox node
     slam_node = Node(
     package='slam_toolbox',
     executable='async_slam_toolbox_node',
@@ -136,14 +116,10 @@ def generate_launch_description():
     return LaunchDescription([
         gazebo,
         robot_state_publisher,
-        # controller_manager_params,
         spawn_robot,
         spawn_joint_state_broadcaster,
         spawn_diff_drive_controller,
-        # slam_launch,
-        # rviz_node,
-        # simple_navigator,
         rviz_node,
-        load_slam_after_robot
+        load_slam_after_robot # Launches slam and simple_navigator
     ])
 

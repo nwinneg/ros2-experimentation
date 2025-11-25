@@ -10,6 +10,7 @@ Panels:
         - /Grid2
         - /Pose1
         - /Odometry1
+        - /Map1
       Splitter Ratio: 0.5
     Tree Height: 555
   - Class: rviz_common/Selection
@@ -187,6 +188,27 @@ Visualization Manager:
         Reliability Policy: Reliable
         Value: /diff_drive_controller/odom
       Value: true
+    - Alpha: 0.699999988079071
+      Class: rviz_default_plugins/Map
+      Color Scheme: costmap
+      Draw Behind: false
+      Enabled: true
+      Name: Map
+      Topic:
+        Depth: 5
+        Durability Policy: Volatile
+        Filter size: 10
+        History Policy: Keep Last
+        Reliability Policy: Reliable
+        Value: /map
+      Update Topic:
+        Depth: 5
+        Durability Policy: Volatile
+        History Policy: Keep Last
+        Reliability Policy: Reliable
+        Value: /map_updates
+      Use Timestamp: false
+      Value: true
   Enabled: true
   Global Options:
     Background Color: 136; 136; 136
@@ -233,7 +255,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz_default_plugins/Orbit
-      Distance: 5.708584785461426
+      Distance: 14.137777328491211
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
@@ -248,10 +270,10 @@ Visualization Manager:
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.9003983736038208
+      Pitch: 0.7253983616828918
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz_default_plugins)
-      Yaw: 0.4353979229927063
+      Yaw: 0.8403978943824768
     Saved: ~
 Window Geometry:
   Displays:
@@ -269,5 +291,5 @@ Window Geometry:
   Views:
     collapsed: false
   Width: 1200
-  X: -24
-  Y: 28
+  X: 306
+  Y: 33
