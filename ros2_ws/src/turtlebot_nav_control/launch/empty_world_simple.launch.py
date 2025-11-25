@@ -11,7 +11,6 @@ def generate_launch_description():
     # Set paths to my package and the tb3 gazebo package
     pkg_tb3_nav_ctrl = get_package_share_directory('turtlebot_nav_control')
     pkg_tb3_gazebo = get_package_share_directory('gazebo_ros')
-    pkg_slam_toolbox = get_package_share_directory('slam_toolbox')
 
     # Set paths to the world we're launching and the robot urdf
     world = os.path.join(pkg_tb3_nav_ctrl, 'worlds', 'empty.world')
@@ -19,9 +18,6 @@ def generate_launch_description():
 
     # Define path to controller configuration file
     controller_config = os.path.join(pkg_tb3_nav_ctrl, 'config', 'controllers.yaml')
-
-    # Define path to SLAM parameters file
-    slam_params_file = os.path.join(pkg_tb3_nav_ctrl, 'config', 'mapper_params_online_async.yaml')
 
     # Process Xacro -> URDF
     robot_description = Command(['xacro ', robot_xacro])
@@ -92,19 +88,19 @@ def generate_launch_description():
     #     }.items()
     # )
 
-    slam_node = Node(
-    package='slam_toolbox',
-    executable='async_slam_toolbox_node',
-    name='slam_toolbox',
-    output='screen',
-    parameters=[
-        slam_params_file,
-        {'use_sim_time': True}
-    ],
-    remappings=[
-        ('/odom', '/diff_drive_controller/odom')
-    ]
-)
+    # slam_node = Node(
+    # package='slam_toolbox',
+    # executable='async_slam_toolbox_node',
+    # name='slam_toolbox',
+    # output='screen',
+    # parameters=[
+    #     slam_params_file,
+    #     {'use_sim_time': True}
+    #     ],
+    # remappings=[
+    #     ('/odom', '/diff_drive_controller/odom')
+    #     ]
+    # )
 
     # RViz2
     rviz_config_file = os.path.join(pkg_tb3_nav_ctrl, 'rviz', 'turtlebot_nav_control.rviz')
@@ -125,13 +121,13 @@ def generate_launch_description():
         parameters=[{'use_sim_time': True}]
     )
 
-    # Handler: Waits for the spawn_robot process to finish before starting SLAM
-    load_slam_after_robot = RegisterEventHandler(
-        OnProcessExit(
-            target_action=spawn_robot, 
-            on_exit=[slam_node, simple_navigator], # <--- Launch SLAM and Navigator here
-        )
-    )
+    # # Handler: Waits for the spawn_robot process to finish before starting SLAM
+    # load_slam_after_robot = RegisterEventHandler(
+    #     OnProcessExit(
+    #         target_action=spawn_robot, 
+    #         on_exit=[slam_node, simple_navigator], # <--- Launch SLAM and Navigator here
+    #     )
+    # )
 
     return LaunchDescription([
         gazebo,
@@ -142,8 +138,8 @@ def generate_launch_description():
         spawn_diff_drive_controller,
         # slam_launch,
         # rviz_node,
-        # simple_navigator,
+        simple_navigator,
         rviz_node,
-        load_slam_after_robot
+        # load_slam_after_robot
     ])
 

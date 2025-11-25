@@ -1,6 +1,6 @@
 import rclpy
 from rclpy.node import Node
-from geometry_msgs.msg import Twist, PoseStamped
+from geometry_msgs.msg import TwistStamped, PoseStamped
 from nav_msgs.msg import Odometry
 import math
 import numpy as np
@@ -11,7 +11,7 @@ class SimpleNavigator(Node):
         super().__init__('simple_navigator')
         
         # Create publisher to publish velocity commands and subscription to read odometry data
-        self.cmd_pub = self.create_publisher(Twist, '/cmd_vel', 10)
+        self.cmd_pub = self.create_publisher(TwistStamped, '/diff_drive_controller/cmd_vel', 10)
         self.odom_sub = self.create_subscription(Odometry, '/diff_drive_controller/odom',self.odom_callback,10)
 
         # Initialize a timer to control update rate of velocity commands
@@ -66,7 +66,8 @@ class SimpleNavigator(Node):
 
         # Check for target waypoint
         if (self.target_x is None) or (self.target_y is None):
-            cmd = Twist() # Stay stopped
+            cmd = TwistStamped() # Stay stopped
+            cmd.header.stamp = self.get_clock().now().to_msg()
             self.cmd_pub.publish(cmd)
             return
 
@@ -78,9 +79,10 @@ class SimpleNavigator(Node):
         # Calculate desired heading (yaw angle) and heading error
         desired_yaw = math.atan2(dy,dx)
         yaw_error = desired_yaw - self.current_yaw
+        yaw_error = (yaw_error + np.pi) % (2*np.pi) - np.pi  # Normalize to [-pi, pi]
 
         # Create a command structure
-        cmd = Twist()
+        cmd = TwistStamped()
 
         # Do simple control logic
         if distance > 0.1: # Not at waypoint yet
@@ -102,8 +104,10 @@ class SimpleNavigator(Node):
             self.reached_target = True
 
         # Apply desired commands and publish
-        cmd.linear.x = desired_linear
-        cmd.angular.z = desired_angular
+        cmd = TwistStamped()
+        cmd.header.stamp = self.get_clock().now().to_msg()
+        cmd.twist.linear.x = desired_linear
+        cmd.twist.angular.z = desired_angular
         self.cmd_pub.publish(cmd)
 
 # Main function for launching in simulation

@@ -32,7 +32,8 @@ setup(
     },
     entry_points={
         'console_scripts': [
-            'simple_navigator = turtlebot_nav_control.simple_navigator:main'
+            'simple_navigator = turtlebot_nav_control.simple_navigator:main',
+            'map_visualizer = turtlebot_nav_control.map_visualizer:main'
         ],
     },
 )
