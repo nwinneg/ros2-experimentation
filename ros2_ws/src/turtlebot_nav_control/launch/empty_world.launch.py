@@ -1,5 +1,5 @@
 from launch import LaunchDescription
-from launch.actions import IncludeLaunchDescription, RegisterEventHandler
+from launch.actions import IncludeLaunchDescription, RegisterEventHandler, ExecuteProcess
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch_ros.actions import Node
 from ament_index_python.packages import get_package_share_directory
@@ -14,7 +14,8 @@ def generate_launch_description():
     pkg_slam_toolbox = get_package_share_directory('slam_toolbox')
 
     # Set paths to the world we're launching and the robot urdf
-    world = os.path.join(pkg_tb3_nav_ctrl, 'worlds', 'empty.world')
+    # world = os.path.join(pkg_tb3_nav_ctrl, 'worlds', 'empty.world')
+    world = os.path.join(pkg_tb3_nav_ctrl, 'worlds', 'empty_world.world')
     robot_xacro = os.path.join(pkg_tb3_nav_ctrl, 'urdf', 'turtlebot_nav_control.urdf.xacro')
 
     # Define path to controller configuration file
@@ -27,11 +28,22 @@ def generate_launch_description():
     robot_description = Command(['xacro ', robot_xacro])
 
     # Include Gazebo launch file (from turtlebot3_gazebo)
+    # gazebo = IncludeLaunchDescription(
+    #     PythonLaunchDescriptionSource(
+    #         os.path.join(pkg_tb3_gazebo, 'launch', 'gazebo.launch.py')
+    #     ),
+    #     launch_arguments={'world': world}.items(),
+    # )
     gazebo = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
             os.path.join(pkg_tb3_gazebo, 'launch', 'gazebo.launch.py')
         ),
-        launch_arguments={'world': world}.items(),
+        launch_arguments={
+            'world': world,
+            'gui': 'false',  # ← KEY CHANGE: Disable GUI
+            'server': 'true',
+            'verbose': 'true'
+        }.items(),
     )
 
     # Publish robot_description via robot_state_publisher
