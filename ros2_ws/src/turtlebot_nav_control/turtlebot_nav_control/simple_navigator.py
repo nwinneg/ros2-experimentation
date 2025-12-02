@@ -73,7 +73,7 @@ class SimpleNavigator(Node):
             cmd = TwistStamped() # Stay stopped
             cmd.header.stamp = self.get_clock().now().to_msg()
             self.cmd_pub.publish(cmd)
-            self.get_logger().info("No target waypoint set")
+            # self.get_logger().info("No target waypoint set")
             return
 
         # Check for current pose
@@ -81,7 +81,7 @@ class SimpleNavigator(Node):
             cmd = TwistStamped() # Stay stopped
             cmd.header.stamp = self.get_clock().now().to_msg()
             self.cmd_pub.publish(cmd)
-            self.get_logger().info("No current pose available")
+            # self.get_logger().info("No current pose available")
             return
 
         # If we have a current pose, tranform it to the map frame and set current_x, current_y, current_yaw
@@ -161,6 +161,7 @@ class SimpleNavigator(Node):
         cmd.header.stamp = self.get_clock().now().to_msg()
         cmd.twist.linear.x = desired_linear
         cmd.twist.angular.z = desired_angular
+        cmd.header.frame_id = 'base_footprint'
         self.cmd_pub.publish(cmd)
 
 # Main function for launching in simulation

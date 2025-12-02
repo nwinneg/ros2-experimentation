@@ -15,7 +15,7 @@ def generate_launch_description():
 
     # Set paths to the world we're launching and the robot urdf
     # world = os.path.join(pkg_tb3_nav_ctrl, 'worlds', 'empty.world')
-    world = os.path.join(pkg_tb3_nav_ctrl, 'worlds', 'empty_world.world')
+    world = os.path.join(pkg_tb3_nav_ctrl, 'worlds', 'turtlebot3_world.world')
     robot_xacro = os.path.join(pkg_tb3_nav_ctrl, 'urdf', 'turtlebot_nav_control.urdf.xacro')
 
     # Define path to controller configuration file
@@ -34,7 +34,7 @@ def generate_launch_description():
         ),
         launch_arguments={
             'world': world,
-            'gui': 'false',  # ← KEY CHANGE: Disable GUI
+            'gui': 'true',
             'server': 'true',
             'verbose': 'true'
         }.items(),
