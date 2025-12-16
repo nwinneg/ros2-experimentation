@@ -72,6 +72,7 @@ class SimpleNavigator(Node):
         if (self.goal_x is None) or (self.goal_y is None):
             cmd = TwistStamped() # Stay stopped
             cmd.header.stamp = self.get_clock().now().to_msg()
+            cmd.header.frame_id = 'base_footprint'
             self.cmd_pub.publish(cmd)
             # self.get_logger().info("No target waypoint set")
             return
@@ -80,6 +81,7 @@ class SimpleNavigator(Node):
         if (self.current_pose is None) or (self.odom_header is None):
             cmd = TwistStamped() # Stay stopped
             cmd.header.stamp = self.get_clock().now().to_msg()
+            cmd.header.frame_id = 'base_footprint'
             self.cmd_pub.publish(cmd)
             # self.get_logger().info("No current pose available")
             return

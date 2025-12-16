@@ -34,7 +34,7 @@ def generate_launch_description():
         ),
         launch_arguments={
             'world': world,
-            'gui': 'false',  # ← KEY CHANGE: Disable GUI
+            'gui': 'false',
             'server': 'true',
             'verbose': 'true'
         }.items(),

@@ -17,6 +17,7 @@ setup(
         (os.path.join('share', package_name, 'worlds'), glob('worlds/*')), # Include world files in build
         (os.path.join('share', package_name, 'rviz'), glob('rviz/*')), # Include world files in build
         (os.path.join('share', package_name, 'config'), glob('config/*')), # Include world files in build
+        (os.path.join('share', package_name, 'maps'), glob('maps/*')), # Include world files in build
 
     ],
     install_requires=['setuptools'],

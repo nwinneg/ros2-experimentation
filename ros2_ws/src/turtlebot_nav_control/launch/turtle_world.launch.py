@@ -22,7 +22,8 @@ def generate_launch_description():
     controller_config = os.path.join(pkg_tb3_nav_ctrl, 'config', 'controllers.yaml')
 
     # Define path to SLAM parameters file
-    slam_params_file = os.path.join(pkg_tb3_nav_ctrl, 'config', 'slam_params_mapping.yaml')
+    # slam_params_file = os.path.join(pkg_tb3_nav_ctrl, 'config', 'slam_params_mapping.yaml')
+    slam_params_file = os.path.join(pkg_tb3_nav_ctrl, 'config', 'slam_params_localization.yaml')
 
     # Process Xacro -> URDF
     robot_description = Command(['xacro ', robot_xacro])
@@ -34,7 +35,7 @@ def generate_launch_description():
         ),
         launch_arguments={
             'world': world,
-            'gui': 'true',
+            'gui': 'false',
             'server': 'true',
             'verbose': 'true'
         }.items(),
@@ -85,7 +86,8 @@ def generate_launch_description():
         output='screen',
         parameters=[
             slam_params_file,
-            {'use_sim_time': True}
+            {'use_sim_time': True},
+            {'mode': 'localization'}
         ],
         remappings=[
             ('/odom', '/diff_drive_controller/odom')

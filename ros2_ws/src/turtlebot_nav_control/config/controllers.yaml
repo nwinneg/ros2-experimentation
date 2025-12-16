@@ -1,7 +1,7 @@
 controller_manager:
   ros__parameters:
     use_sim_time: true
-    update_rate: 30 # Hz, should match or be lower than the Gazebo update rate
+    update_rate: 100 # Hz, should match or be lower than the Gazebo update rate
 
     # The controller that publishes joint states to ROS 2. 
     # It reads state from the ros2_control hardware interface.
@@ -15,6 +15,7 @@ controller_manager:
 
 diff_drive_controller:
   ros__parameters:
+    use_sim_time: true
     
     # 1. Kinematics/Geometry
     # These parameters must match the values used in the XACRO diff_drive plugin!
