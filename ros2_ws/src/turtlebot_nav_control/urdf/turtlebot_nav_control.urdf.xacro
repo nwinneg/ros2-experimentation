@@ -223,31 +223,10 @@
         <parameters>$(find turtlebot_nav_control)/config/controllers.yaml</parameters>
         <robot_param>robot_description</robot_param>
         <robot_param_node>robot_state_publisher</robot_param_node>
-    </plugin>
-  </gazebo>
-  
-  <gazebo>
-    <plugin name="turtlebot3_diff_drive" filename="libgazebo_ros_diff_drive.so">
-      <ros>
-        <namespace>${namespace}</namespace>
-        <output_type>ros_base</output_type>
-        <publish_odom_tf>true</publish_odom_tf>
-      </ros>
-      
-      <left_joint>${namespace}wheel_left_joint</left_joint>
-      <right_joint>${namespace}wheel_right_joint</right_joint>
-      
-      <wheel_separation>0.160</wheel_separation> <wheel_radius>0.033</wheel_radius>
-      
-      <publish_wheel_tf>false</publish_wheel_tf>
-      <publish_wheel_joint_state>true</publish_wheel_joint_state>
-      <legacy_mode>false</legacy_mode>
-      <update_rate>30</update_rate>
-      
-      <odometry_frame>${namespace}odom</odometry_frame>
-      <robot_base_frame>${namespace}base_footprint</robot_base_frame>
-      
-      <command_topic>cmd_vel</command_topic>
+        <update_rate>100</update_rate>
+        <!-- <command_topic>cmd_vel</command_topic> -->
+        <odometry_frame>${namespace}odom</odometry_frame>
+        <robot_base_frame>${namespace}base_footprint</robot_base_frame>
     </plugin>
   </gazebo>
 
@@ -263,7 +242,8 @@
             <samples>360</samples>
             <resolution>1</resolution>
             <min_angle>0.0</min_angle>
-            <max_angle>6.28319</max_angle> </horizontal>
+            <max_angle>6.28319</max_angle> 
+          </horizontal>
         </scan>
         <range>
           <min>0.120</min>
@@ -273,10 +253,9 @@
       </ray>
       <plugin name="gazebo_ros_laser_controller" filename="libgazebo_ros_ray_sensor.so">
         <ros>
-          <argument>~/out</argument>
-          <output_type>sensor_msgs/LaserScan</output_type>
-          <topic_name>scan</topic_name>
+          <argument>~/out:=scan</argument>
         </ros>
+        <output_type>sensor_msgs/LaserScan</output_type>
         <frame_name>${namespace}base_scan</frame_name>
       </plugin>
     </sensor>

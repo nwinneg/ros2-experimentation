@@ -2,6 +2,7 @@
 ros2_ws/build/
 ros2_ws/install/
 ros2_ws/log/
+nav2_bringup/
 
 # Python
 __pycache__/
