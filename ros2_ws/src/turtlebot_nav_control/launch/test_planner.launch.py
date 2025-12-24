@@ -94,7 +94,7 @@ def generate_launch_description():
         ]
     )
     # RViz2
-    rviz_config_file = os.path.join(pkg_tb3_nav_ctrl, 'rviz', 'turtlebot_nav_control.rviz')
+    rviz_config_file = os.path.join(pkg_tb3_nav_ctrl, 'rviz', 'rviz_test_planner.rviz')
     rviz_node = Node(
         package='rviz2',
         executable='rviz2',
@@ -102,15 +102,6 @@ def generate_launch_description():
         arguments=['-d', rviz_config_file],
         output='screen'
     )
-
-    # Simple Navigator node
-    # simple_navigator = Node(
-    #     package='turtlebot_nav_control',
-    #     executable='simple_navigator',
-    #     name='simple_navigator',
-    #     output='screen',
-    #     parameters=[{'use_sim_time': True}]
-    # )
 
     # Simple Planner Node
     simple_planner = Node(
@@ -125,7 +116,7 @@ def generate_launch_description():
     load_slam_after_robot = RegisterEventHandler(
         OnProcessExit(
             target_action=spawn_robot, 
-            on_exit=[slam_node, simple_planner], # <--- Launch SLAM and Navigator here
+            on_exit=[slam_node, simple_planner], # <--- Launch SLAM and planer after robot is spawned
         )
     )
 
@@ -136,6 +127,6 @@ def generate_launch_description():
         spawn_joint_state_broadcaster,
         spawn_diff_drive_controller,
         rviz_node,
-        load_slam_after_robot # Launches slam and simple_navigator
+        load_slam_after_robot # Launches slam and planner
     ])
 

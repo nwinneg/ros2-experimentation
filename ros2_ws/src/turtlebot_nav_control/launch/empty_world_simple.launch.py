@@ -68,7 +68,7 @@ def generate_launch_description():
     )
 
     # RViz2
-    rviz_config_file = os.path.join(pkg_tb3_nav_ctrl, 'rviz', 'turtlebot_nav_control.rviz')
+    rviz_config_file = os.path.join(pkg_tb3_nav_ctrl, 'rviz', 'rviz_empty_simple.rviz')
     rviz_node = Node(
         package='rviz2',
         executable='rviz2',

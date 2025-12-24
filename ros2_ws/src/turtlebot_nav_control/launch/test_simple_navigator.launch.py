@@ -94,7 +94,7 @@ def generate_launch_description():
         ]
     )
     # RViz2
-    rviz_config_file = os.path.join(pkg_tb3_nav_ctrl, 'rviz', 'turtlebot_nav_control.rviz')
+    rviz_config_file = os.path.join(pkg_tb3_nav_ctrl, 'rviz', 'rviz_test_simple_navigator.rviz')
     rviz_node = Node(
         package='rviz2',
         executable='rviz2',
@@ -116,7 +116,7 @@ def generate_launch_description():
     load_slam_after_robot = RegisterEventHandler(
         OnProcessExit(
             target_action=spawn_robot, 
-            on_exit=[slam_node, simple_navigator], # <--- Launch SLAM and Navigator here
+            on_exit=[slam_node, simple_navigator],
         )
     )
 

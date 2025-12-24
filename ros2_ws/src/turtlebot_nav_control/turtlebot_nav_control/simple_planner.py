@@ -1,20 +1,24 @@
 import rclpy
 from rclpy.node import Node
-from nav_msgs.msg import Path                           # The path message
 from geometry_msgs.msg import PoseStamped               # Each waypoint in the path
-from geometry_msgs.msg import Pose, Point, Quaternion   # Convenience
-from std_msgs.msg import Header                         # For setting headers
-from tf_transformations import quaternion_from_euler, euler_from_quaternion
+from tf_transformations import quaternion_from_euler
 import tf2_ros
 from tf2_ros import TransformException
 from rclpy.duration import Duration
 from tf2_geometry_msgs import do_transform_pose
 from rclpy.time import Time
 from nav_msgs.msg import OccupancyGrid, Odometry, Path  # for /map
-import math        # for distance, angles
-import numpy as np # if doing path computations like A*, grids, etc.
-from dataclasses import dataclass
 
+# For setting QoS profile of /planned_path topic
+from rclpy.qos import QoSProfile
+from rclpy.qos import DurabilityPolicy, ReliabilityPolicy, HistoryPolicy
+
+# Mostly used in A* algorithm
+import math
+from dataclasses import dataclass
+import heapq
+
+# Create data class to store map information
 @dataclass(frozen=True)
 class MapInfo:
     width: int
@@ -30,8 +34,20 @@ class SimplePlanner(Node):
         # Physical paramters
         self.radius = 0.22      # Radius of the robot for inflation purposes
 
+        # Set QoS profile for path publisher
+        path_qos = QoSProfile(
+            history=HistoryPolicy.KEEP_LAST,
+            depth=1,
+            reliability=ReliabilityPolicy.RELIABLE,     
+            durability=DurabilityPolicy.TRANSIENT_LOCAL # Latch last message for late subscribers
+        )
+
         # Publisher to publish computed path
-        self.path_pub = self.create_publisher(Path, '/planned_path', 10)
+        self.path_pub = self.create_publisher(
+            Path,
+            '/planned_path',
+            path_qos
+        )
 
         # Subscriber to receive goal pose from rviz
         self.goal_sub = self.create_subscription(
@@ -144,8 +160,8 @@ class SimplePlanner(Node):
 
     def grid_to_map(self, row: int, col: int) -> tuple[float, float]:
         # Make sure we have map info and get it
-       if self.map_info is None:
-        raise RuntimeError("Map not available")
+        if self.map_info is None:
+            raise RuntimeError("Map not available")
 
         mi = self.map_info
 
@@ -157,14 +173,116 @@ class SimplePlanner(Node):
 
     def is_free(self, row: int, col: int) -> bool:
         # Check that a cell is free, consider robot radius for inflation
-        pass
+        # -1: unknown, 0: free, 1-100: occupied with some probability
+        
+        # Get map info and map data
+        mi = self.map_info
+        map = self.map
+
+        # Convert robot radius into grid cells
+        inflation_cells = math.ceil(self.radius / mi.resolution)
+
+        # Check if the cell is free
+        for i in range(-inflation_cells, inflation_cells + 1):
+            for j in range(-inflation_cells, inflation_cells + 1):
+                # Get cell index
+                r = row + i
+                c = col + j
+
+                # Check if cell is within bounds
+                if (r < 0) or (c < 0) or (r >= mi.height) or (c >= mi.width):
+                    return False
+
+                # Check if cell is free
+                if map[r * mi.width + c] > 0:
+                    return False
+        
+        return True
 
     def astar(self, start: tuple[int, int], goal: tuple[int, int]) -> list[tuple[int, int]]:
         """
         start, goal: tuple[int, int] = (row, col)
         returns: list of tuples (row, col) from start to goal or None
         """
-        pass
+        
+        mi = self.map_info
+
+        # Initialize priority queue to store path (fcost, (row, col))
+        open_set = [] # Priority queue
+        closed_set = set() # Set of visited nodes
+        heapq.heappush(open_set, (0.0, start))
+
+        # Initialize dictionaries to store cost and path 
+        came_from = {} # Parent of each node
+        g_cost = {start : 0.0} # Cost to reach each node
+
+        # Helper function to get the heuristic cost (h-cost) where b is the goal
+        def heuristic(a, b):
+            # self.get_logger().info(f"Heuristic cost: {math.hypot(a[0] - b[0], a[1] - b[1])}")
+            return math.hypot(a[0] - b[0], a[1] - b[1])
+
+        # Define connected neighbors for a grid point
+        neighbors = [
+            (-1, 0), # Up
+            (1, 0),  # Down
+            (0, -1), # Left
+            (0, 1),   # Right
+            (-1, -1),# Up left
+            (-1, 1), # Up right
+            (1, -1),  # Down left
+            (1, 1)   # Down right
+        ]
+
+        # Loop until goal reached or open_set is empty
+        while open_set:
+            # Get the node with the lowest f_cost
+            _, current = heapq.heappop(open_set)
+
+            # Check if current node is in closed set
+            if current in closed_set:
+                continue
+            
+            # Add current node to closed set
+            closed_set.add(current)
+
+            # If goal reached, reconstruct and return path
+            if current == goal:
+                return self._reconstruct_path(came_from, current)
+            
+            # Get current g_cost
+            cur_g = g_cost[current]
+
+            # Loop over neighbors
+            for dr, dc in neighbors:
+                # Get neighbor coordinates
+                nr = current[0] + dr
+                nc = current[1] + dc
+
+                # Check that neighbor is in bounds
+                if not ((0 <= nr < mi.height) and (0 <= nc < mi.width)):
+                    continue
+                
+                # Check that neighbor is free
+                if not self.is_free(nr, nc):
+                    continue
+
+                # Calculate step cost of travel to neighbor and tentative g cost if chosen
+                step_cost = math.hypot(dr, dc) # 1 or sqrt(2) for diagonal
+                tentative_g_cost = cur_g + step_cost
+                neighbor = (nr, nc)
+
+                # Check if neighbor is already in the open set, if not, add to open_set
+                if tentative_g_cost < g_cost.get(neighbor, float('inf')):
+                    # Update path and g_cost
+                    came_from[neighbor] = current
+                    g_cost[neighbor] = tentative_g_cost
+                    
+                    # Calculate and push f_cost to open_set
+                    f_cost = tentative_g_cost + heuristic(neighbor, goal)
+                    heapq.heappush(open_set, (f_cost, neighbor))
+        
+        # If goal not reached, return None
+        return None
 
     def _reconstruct_path(self, came_from, current):
         # Reconstruct path from start to goal
@@ -204,15 +322,61 @@ class SimplePlanner(Node):
         current = self.map_to_grid(current_pose.position.x, current_pose.position.y)
         goal = self.map_to_grid(self.goal_x, self.goal_y)
         self.get_logger().info(f"Planning route from {current} to {goal}")
-    
+
         # Use function to do A*
+        path = self.astar(current, goal)
+        if path is None:
+            self.get_logger().info("A* failed to find a path.")
+            return
 
         # Convert from map to world coords
+        waypoints = []
+        for row, col in path:
+            position = self.grid_to_map(row, col)
+            waypoints.append(position)
 
+        # Create path msg
+        path_msg = Path()
+        path_msg.header.frame_id = self.goal_frame
+        path_msg.header.stamp = self.get_clock().now().to_msg()
+
+        # Loop through waypoints and add to path
+        for ind in range(len(waypoints)):
+
+            # Get waypoint coordinates
+            x, y = waypoints[ind]
+
+            # Calculate desired yaw if not last waypoint
+            if ind < len(waypoints) - 1:
+                x_next, y_next = waypoints[ind + 1]
+                yaw = math.atan2(y_next - y, x_next - x)
+            
+            # Create a pose msg
+            pose_msg = PoseStamped()
+            pose_msg.header.frame_id = self.goal_frame
+            pose_msg.header.stamp = self.get_clock().now().to_msg()
+
+            # Set cart pose components
+            pose_msg.pose.position.x = x
+            pose_msg.pose.position.y = y
+            pose_msg.pose.position.z = 0.0
+
+            # Calculate quaternion from yaw
+            q = quaternion_from_euler(0.0, 0.0, yaw)
+
+            # Set rotation components
+            pose_msg.pose.orientation.x = q[0]
+            pose_msg.pose.orientation.y = q[1]
+            pose_msg.pose.orientation.z = q[2]
+            pose_msg.pose.orientation.w = q[3]
+
+            # Append to path message
+            path_msg.poses.append(pose_msg)
+        
         # Publish path
+        self.path_pub.publish(path_msg)
 
-        self.get_logger().info("Got into route planning block and past pose tranformation.")
-
+        self.get_logger().info(f"Got past A* planning and published path")
 
 
 def main(args=None):
