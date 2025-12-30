@@ -17,8 +17,8 @@ ros2 launch turtlebot_nav_control <launch_filename.launch.py>
     - Intended as a playground to understand how to interact with OccupancyGrid data structures
 - `simple_planner` - Publishes A* planned path to /planned_path topic 
     - Implementation of A* path planning to define a trajectory between waypoints
-- `pid_follower` - *In Progress*
-    - Initial motion control to follow a trajectory, model free for the first simple case
+- `simple_follower` - *In Progress*
+    - Initial motion control to follow a trajectory, model free for the first simple case (stanley style proportional control)
 
 ## Launch Files
 - `empty_world_simple.launch.py` - Launches the empty world with just simple_navigator installed.
@@ -29,8 +29,8 @@ ros2 launch turtlebot_nav_control <launch_filename.launch.py>
     - No obstacle avoidance, just a straight path between current pose and goal pose
 - `test_planner.launch.py` - Launches in turtlebot3_world with slam toolbox in navigation
     - No motion control at all, A* node plans a path from current pose to goal pose and publishes to /planned_path
-- `test_follower.launch.py` - *In Progress*
-    - Using planner node from previous to
+- `test_path_follower.launch.py` - *In Progress*
+    - Using planner node from previous to generate /planned_path and test follower node
 
 ## Additional Contents
 - `test.launch.py` - Test file used to experiment with additional nav2 features
