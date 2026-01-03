@@ -36,6 +36,7 @@ setup(
             'simple_navigator = turtlebot_nav_control.simple_navigator:main',
             'map_visualizer = turtlebot_nav_control.map_visualizer:main',
             'simple_planner = turtlebot_nav_control.simple_planner:main',
+            'simple_follower = turtlebot_nav_control.simple_follower:main',
         ],
     },
 )
