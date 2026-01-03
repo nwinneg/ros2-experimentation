@@ -321,7 +321,6 @@ class SimplePlanner(Node):
         # Get coordinates and start planning a route
         current = self.map_to_grid(current_pose.position.x, current_pose.position.y)
         goal = self.map_to_grid(self.goal_x, self.goal_y)
-        self.get_logger().info(f"Planning route from {current} to {goal}")
 
         # Use function to do A*
         path = self.astar(current, goal)
@@ -376,8 +375,7 @@ class SimplePlanner(Node):
         # Publish path
         self.path_pub.publish(path_msg)
 
-        self.get_logger().info(f"Got past A* planning and published path")
-
+        self.get_logger().info(f"Path published from {current} to {goal}")
 
 def main(args=None):
     rclpy.init(args=args)

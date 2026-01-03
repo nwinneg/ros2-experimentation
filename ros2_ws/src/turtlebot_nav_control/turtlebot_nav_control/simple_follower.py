@@ -5,6 +5,9 @@ from rclpy.time import Time
 from geometry_msgs.msg import TwistStamped, PoseStamped
 from nav_msgs.msg import Odometry, Path
 
+# Import qlality of service libraries
+from rclpy.qos import QoSProfile, ReliabilityPolicy, HistoryPolicy
+
 # Import transform libraries and functions
 import tf2_ros
 from tf2_ros import TransformException
@@ -19,18 +22,26 @@ class SimpleFollower(Node):
     def __init__(self):
         super().__init__('simple_follower')
 
+        # Define QoS profile for subscriptions
+        best_effort_qos = QoSProfile(
+            reliability=ReliabilityPolicy.BEST_EFFORT,
+            history=HistoryPolicy.KEEP_LAST,
+            depth=1
+        )
+
         # Create publisher for control cmds w/ standard QoS
         self.cmd_pub = self.create_publisher(
             TwistStamped,
             '/diff_drive_controller/cmd_vel',
-            10)
+            10
+        )
 
         # Subscribe to odometry msgs for localization
         self.odom_sub = self.create_subscription(
             Odometry,
             '/diff_drive_controller/odom',
             self.odom_callback,
-            10
+            best_effort_qos
         )
 
         # Subscribe to the path to get trajectory
@@ -38,7 +49,7 @@ class SimpleFollower(Node):
             Path,
             '/planned_path',
             self.path_callback,
-            10
+            best_effort_qos
         )
 
         # Initialize timer to control update rate of cmds
@@ -59,7 +70,7 @@ class SimpleFollower(Node):
         self.look_ahead_index = 2 # Index of look-ahead point in path
         self.k_x = 1.0
         self.k_y = 1.0
-        self.k_theta = 1.0
+        self.k_theta = 2.0
 
         # TODO: Other member variables as needed (Maybe errors, previous states for smoothing, etc)
         self.ey_history = [] # For smoothing (stanley style controller)
@@ -74,7 +85,6 @@ class SimpleFollower(Node):
     def path_callback(self,msg):
         # Callback to receive path msgs and update member vars
         self.path = msg
-        self.get_logger().info(f"Received new path: \n{msg}")
 
     def control_loop(self):
         # Function tied to timer to run lateral and speed controllers predictably
@@ -91,13 +101,16 @@ class SimpleFollower(Node):
             msg_time = Time.from_msg(header.stamp)
             pose = pose_stamped
 
+        now = rclpy.time.Time()
+
         try: 
             # Get transform
             transform = self.tf_buffer.lookup_transform(
                 target_frame,
                 source_frame,
-                msg_time,
-                rclpy.duration.Duration(seconds=2.0)
+                # msg_time,
+                now,
+                rclpy.duration.Duration(seconds=0.0)
             )
 
             # Transform pose
@@ -254,6 +267,8 @@ class SimpleFollower(Node):
             cmd_msg.twist.angular.z = 0.0
             self.cmd_pub.publish(cmd_msg)
             return
+
+        # self.get_logger().info(f"Following path. Nearest index: {nearest_index} / {len(self.path.poses)-1}")
 
         # Compute tracking errors
         ex, ey, etheta = self.compute_tracking_errors(nearest_index)
