@@ -28,6 +28,9 @@ RUN apt update && apt install -y lsb-release wget gnupg && \
     wget https://packages.osrfoundation.org/gazebo.gpg -O /usr/share/keyrings/gazebo-archive-keyring.gpg && \
     echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/gazebo-archive-keyring.gpg] http://packages.osrfoundation.org/gazebo/ubuntu-stable $(lsb_release -cs) main" > /etc/apt/sources.list.d/gazebo-stable.list
 
+# Install rosdep
+RUN apt update && apt install -y python3-rosdep && rm -rf /var/lib/apt/lists/*
+
 # Add Ignition Gazebo (Fortress) and ROS–Gazebo bridge
 RUN apt update && apt install -y \
     ros-humble-ros-gz \
@@ -51,6 +54,24 @@ RUN apt update && apt install -y \
     ros-humble-slam-toolbox \
     && rm -rf /var/lib/apt/lists/*
 
+# Install OS dependencies for MoveIt and UR packages
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    ros-humble-moveit \
+    ros-humble-moveit-servo \
+    ros-humble-moveit-visual-tools \
+    ros-humble-ur-moveit-config \
+    ros-humble-ur-msgs \
+    ros-humble-moveit-ros-planning \
+    ros-humble-moveit-ros-planning-interface \
+    ros-humble-ros2-control \
+    ros-humble-ros2-controllers \
+    ros-humble-joint-state-publisher-gui \
+    ros-humble-robot-state-publisher \
+    ros-humble-ur-description \
+    ros-humble-ur-robot-driver \
+    ros-humble-ur-simulation-gz \
+    && rm -rf /var/lib/apt/lists/*
+
 # Common dev tools & visualization dependencies
 RUN apt update && apt install -y \
     python3-colcon-common-extensions \
@@ -65,8 +86,8 @@ RUN apt update && apt install -y \
 RUN echo "source /opt/ros/humble/setup.bash" >> /root/.bashrc
 
 # Create workspace directory
-RUN mkdir -p /root/ros2_ws/src
-WORKDIR /root/ros2_ws
+RUN mkdir -p /root/turtle_ws/src
+WORKDIR /root
 
 # Default command: open bash
 CMD ["bash"]

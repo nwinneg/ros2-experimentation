@@ -1,8 +1,10 @@
 # ROS2 build artifacts
-ros2_ws/build/
-ros2_ws/install/
-ros2_ws/log/
-nav2_bringup/
+*/build/
+*/install/
+*/log/
+
+# Map files and binarys
+*.pgm
 
 # Python
 __pycache__/

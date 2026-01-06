@@ -68,7 +68,7 @@ class SimpleFollower(Node):
         
         # TODO: Control parameters
         self.look_ahead_index = 2 # Index of look-ahead point in path
-        self.k_x = 1.0
+        self.k_x = 3.0
         self.k_y = 1.0
         self.k_theta = 2.0
 

@@ -3,15 +3,15 @@
 My personal ROS2 Humble development environment for learning and experimentation.
 
 ## Current Projects
-- TurtleBot3 navigation and control
-- (More to come...)
+- Differential drive navigation and control (Turtlebot3 & Nav2)
+- 6-Axis arm manipulation (ur5 & MoveIt)
 
 ## Usage
 Startup: 
 ```bash
 docker-compose up -d
 docker-compose exec ros2_dev bash
-colcon build
+colcon build --symlink-install
 ```
 Shutdown:
 ```bash

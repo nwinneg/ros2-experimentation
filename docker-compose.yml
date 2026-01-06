@@ -9,6 +9,7 @@ services:
       - DISPLAY=${DISPLAY}
     volumes:
       - /tmp/.X11-unix:/tmp/.X11-unix:rw
-      - ./ros2_ws:/root/ros2_ws:rw
-    working_dir: /root/ros2_ws
+      - ./turtle_ws:/root/turtle_ws:rw
+      - ./ur5_ws:/root/ur5_ws:rw
+    working_dir: /root
     command: bash
