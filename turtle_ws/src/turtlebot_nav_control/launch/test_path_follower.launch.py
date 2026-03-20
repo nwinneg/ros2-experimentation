@@ -127,7 +127,7 @@ def generate_launch_description():
     launch_navigation = RegisterEventHandler(
         OnProcessExit(
             target_action=spawn_robot, 
-            on_exit=[slam_node, simple_planner, simple_follower],
+            on_exit=[slam_node,simple_planner, simple_follower],
         )
     )
 
@@ -138,6 +138,6 @@ def generate_launch_description():
         spawn_joint_state_broadcaster,
         spawn_diff_drive_controller,
         rviz_node,
-        launch_navigation # Launches slam, planner, and follower
+        launch_navigation # Launches, planner, and follower
     ])
 
